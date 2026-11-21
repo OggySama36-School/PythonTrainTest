@@ -7,7 +7,7 @@ Quy trình:
     3. Từ các dự đoán đó: chọn ngưỡng cảnh báo và học phép hiệu chỉnh xác suất.
     4. Huấn luyện mô hình cuối trên 80%, chấm trên TEST, lưu model.
 
-Chạy từ thư mục gốc backend:  python train.py
+Chạy từ thư mục gốc backend:  .venv\Scripts\python.exe train.py
 Kết quả:
     - train/model.joblib  (api.py đọc file này)
     - train/charts/*.png  (biểu đồ cho báo cáo)
@@ -39,7 +39,7 @@ warnings.filterwarnings('ignore')
 
 # ====================== 2. ĐƯỜNG DẪN & ĐỌC DỮ LIỆU ======================
 BASE_DIR = Path(__file__).resolve().parent          # thư mục train/
-CSV_PATH = BASE_DIR.parent / "dataset" / "healthcare-dataset-stroke-data.csv"
+CSV_PATH = BASE_DIR / "dataset" / "healthcare-dataset-stroke-data.csv"
 MODEL_PATH = BASE_DIR / "model.joblib"
 CHART_DIR = BASE_DIR / "charts"
 CHART_DIR.mkdir(exist_ok=True)
