@@ -13,17 +13,24 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+
 BASE_DIR = Path(__file__).resolve().parent
 bundle = joblib.load(BASE_DIR / "model.joblib")
 
 pipeline = bundle["pipeline"]
 calibrator = bundle["calibrator"]
-threshold = bundle["threshold"]                  
+threshold = bundle["threshold"]
 numeric_cols = bundle["numeric_cols"]
 categorical_cols = bundle["categorical_cols"]
 max_age_trained = bundle["max_age_trained"]
 
 app = FastAPI()
+
+
+# Health check: dùng cho Render và UptimeRobot (GET + HEAD) để giữ service luôn thức
+@app.api_route("/", methods=["GET", "HEAD"])
+def health():
+    return {"status": "ok"}
 
 
 def add_features(d):
@@ -43,9 +50,11 @@ def add_features(d):
                        + d['smoking_binary'] * 2)
     return d
 
+
 def logit(prob):
     prob = np.clip(prob, 1e-4, 1 - 1e-4)
     return np.log(prob / (1 - prob)).reshape(-1, 1)
+
 
 class Patient(BaseModel):
     gender: Literal['Male', 'Female', 'Other']
@@ -100,7 +109,6 @@ def predict(p: Patient):
     if raw["smoking_status"] in smoking_vi:
         factors.append(f"Hút thuốc ({smoking_vi[raw['smoking_status']]})")
 
-    # Cảnh báo khi tuổi nằm ngoài vùng dữ liệu đã học
     warning = ""
     if raw["age"] > max_age_trained:
         warning = f"Tuổi vượt quá dữ liệu huấn luyện (tối đa {max_age_trained}), kết quả chỉ mang tính ước lượng."
